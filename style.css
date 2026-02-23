@@ -7,8 +7,12 @@
     --mc-red: #ff0000;
     --vfd-background: #020502;
     --vfd-off: #000;
-    --backgound-color: #3a3a3a;
+    --backgound-color: #666666;
     --chassis-color: #000;
+
+    /* === TRIM SETTINGS === */
+    --trim-height: 670px;   /* hauteur totale des trims */
+    --trim-top: -10px;      /* décalage vertical (négatif = vers le haut) */
 }
 
 /* --- BASE --- */
@@ -28,33 +32,46 @@ body {
     width: 1800px;
     height: 650px;
     background: var(--chassis-color);
-    border: 3px solid #1a1a1a;
+    border-top: 10px solid #1a1a1a;
+    border-bottom: 10px solid #1a1a1a ;
     position: relative;
-    box-shadow: 0 50px 100px rgba(0, 0, 0, 0.9);
-    overflow: hidden;
+    box-shadow: 0 50px 100px rgba(148, 148, 148, 0.9);
+    overflow: visible;
 }
 
-/* Rétablissement de tes côtés argentés d'origine */
+/* Côtés argentés positionnés par-dessus le chassis */
 .silver-trim {
-    width: 60px;
-    background: linear-gradient(to right,
-            #888 0%,
-            #ddd 15%,
-            #eee 50%,
-            #ddd 85%,
-            #888 100%);
-    height: 100%;
-    position: relative;
-    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3), -5px 0 15px rgba(0, 0, 0, 0.3);
-    z-index: 10;
+    width: 55px;
+    height: var(--trim-height);
+    top: var(--trim-top);
+    position: absolute;
+    z-index: 20;
 }
 
 .silver-trim.left {
-    border-right: 4px solid #000;
+    left: 0;
+    background: linear-gradient(to right,
+            #e0e0e0 0%,
+            #ffffff 15%,
+            #bdbdbd 40%,
+            #9e9e9e 90%,
+            #444444 100%
+    );
+    box-shadow: -5px 15px 30px rgba(0, 0, 0, 0.4);
+    border-radius: 2px 0 0 2px;
 }
 
 .silver-trim.right {
-    border-left: 4px solid #000;
+    right: 0;
+    background: linear-gradient(to left,
+            #e0e0e0 0%,
+            #ffffff 15%,
+            #bdbdbd 40%,
+            #9e9e9e 90%,
+            #444444 100%
+    );
+    box-shadow: 5px 15px 30px rgba(0, 0, 0, 0.4);
+    border-radius: 0 2px 2px 0;
 }
 
 .silver-trim::before {
@@ -62,13 +79,15 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    background: repeating-linear-gradient(180deg,
-            rgba(0, 0, 0, 0) 0px,
-            rgba(0, 0, 0, 0.03) 1px,
-            rgba(255, 255, 255, 0.03) 2px);
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+            transparent,
+            transparent 1px,
+            rgba(255, 255, 255, 0.1) 1px,
+            rgba(255, 255, 255, 0.1) 2px);
     pointer-events: none;
+    opacity: 0.5;
 }
 
 .front-panel {
@@ -79,6 +98,8 @@ body {
     align-items: center;
     justify-content: space-between;
     background: radial-gradient(circle at center, #080808 0%, #000 100%);
+    margin-left: 55px;
+    margin-right: 55px;
 }
 
 .mc-header {
@@ -218,7 +239,6 @@ body {
     text-shadow: 0 0 8px rgba(51, 204, 255, 0.5);
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
     max-width: 95%;
     cursor: pointer;
     margin-top: 30px;
@@ -323,7 +343,7 @@ body {
     width: 100%;
     justify-content: space-between;
     align-items: flex-end;
-    padding: 0 20px 25px 20px;
+    padding: 0 20px 5px 20px;
     box-sizing: border-box;
 }
 
@@ -354,55 +374,87 @@ body {
     text-align: center;
 }
 
+/* --- BOUTONS : style laqué arrondi --- */
 .btn-transport, .btn-round {
-    background: linear-gradient(180deg, #1d1d1d, #050505);
-    border: 5px solid #2c2c2c;
-    width: 65px;
-    height: 45px;
-    border-radius: 15px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.1s ease;
-    /* Transition plus rapide pour l'appui */
-    box-sizing: border-box;
-    box-shadow:
-        0 4px 0 #000000,
-        inset 0 0 0 4px #000000,
-        inset 0 3px 5px rgba(12, 12, 12, 0.5);
     position: relative;
+    width: 65px;
+    height: 48px;
+    background: linear-gradient(180deg,
+            #353535 0%,
+            #1a1a1a 40%,
+            #0a0a0a 50%,
+            #000000 100%);
+    border-radius: 90% / 20px;
+    border: 1px solid #3a3a3a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    overflow: hidden;
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.9),
+        inset 0 2px 3px rgba(255, 255, 255, 0.3),
+        inset 0 -2px 5px rgba(0, 0, 0, 0.7);
+    box-sizing: border-box;
     top: 0;
+}
+
+.btn-transport::after, .btn-round::after {
+    content: "";
+    width: 85%;
+    height: 70%;
+    background: #0d0d0d;
+    border-radius: 100% / 15px;
+    transform: translateY(1px);
+    box-shadow:
+        0 4px 6px rgba(0, 0, 0, 0.8),
+        0 -1px 2px rgba(255, 255, 255, 0.15);
+    border: 1px solid #222;
+    transition: all 0.1s ease;
+    pointer-events: none;
 }
 
 /* --- BUTTON PRESS EFFECT --- */
 .btn-transport:active, .btn-round:active {
-    top: 3px;
-    /* Le bouton descend */
+    transform: translateY(2px);
     box-shadow:
-        0 1px 0 #000000,
-        /* L'ombre sous le bouton s'écrase */
-        inset 0 0 0 4px #000000,
-        inset 0 3px 10px rgba(0, 0, 0, 0.8);
-    /* L'ombre interne se renforce */
-    filter: brightness(0.8);
-    /* Le bouton s'assombrit légèrement */
+        0 2px 5px rgba(0, 0, 0, 0.9),
+        inset 0 1px 1px rgba(255, 255, 255, 0.1);
 }
 
-.btn-round.standby {
-    background: #a10101;
-    border: 5px solid #2c2c2c;
+.btn-transport:active::after, .btn-round:active::after {
+    transform: translateY(1px) scale(0.96);
     box-shadow:
-        0 4px 0 #000000,
-        inset 0 0 0 4px #000000,
-        inset 0 3px 5px rgba(12, 12, 12, 0.5);
+        0 1px 2px rgba(0, 0, 0, 0.9),
+        inset 0 2px 5px rgba(0, 0, 0, 0.6);
+    background: #050505;
+}
+
+/* --- BOUTON STANDBY (rouge) --- */
+.btn-round.standby {
+    background: #1a1a1a;
+}
+
+.btn-round.standby::after {
+    background: radial-gradient(circle, #912624 0%, #912624 100%);
+    border: 2px solid #000;
+    box-shadow:
+        0 4px 6px rgba(0, 0, 0, 0.8),
+        0 -1px 2px rgba(255, 255, 255, 0.2);
 }
 
 .btn-round.standby:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.9);
+}
+
+.btn-round.standby:active::after {
+    transform: translateY(1px) scale(0.98);
+    background: radial-gradient(circle, #912624 0%, #912624 100%);
     box-shadow:
-        0 1px 0 #000000,
-        inset 0 0 0 4px #000000,
-        inset 0 3px 10px rgba(0, 0, 0, 0.8);
+        0 1px 2px rgba(0, 0, 0, 0.9),
+        inset 0 2px 5px rgba(0, 0, 0, 0.6);
 }
 
 .led {
@@ -445,7 +497,8 @@ body {
     color: var(--mc-gold);
     text-transform: uppercase;
     font-weight: normal;
-    font-size: small;
+    font-size: 12px;
+    letter-spacing: 0.5px;
 }
 
 #file-format {
@@ -556,7 +609,9 @@ body {
 .gold-text {
     color: var(--mc-gold);
     text-transform: uppercase;
-    font-weight: normal;
+    font-weight: bold;
+    font-size: 12px;
+    letter-spacing: 0.5px;
 }
 
 #input-knob {

@@ -44,6 +44,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let abPointA = null;
     let abPointB = null;
 
+    // --- UTILITAIRE : TAILLE DYNAMIQUE DU TITRE ---
+    const fitText = (element, maxFontSize) => {
+        if (!element) return;
+        let fontSize = maxFontSize;
+        element.style.fontSize = fontSize + 'px';
+        while (element.scrollWidth > element.offsetWidth && fontSize > 12) {
+            fontSize--;
+            element.style.fontSize = fontSize + 'px';
+        }
+    };
+
     // --- ÉTAT TONALITÉ ---
     let bassLevel = 0;
     let trebleLevel = 0;
@@ -265,6 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const album = tags.album ? tags.album.toUpperCase() : "SINGLE";
 
                     statusLine.innerText = title;
+                    setTimeout(() => fitText(statusLine, 30), 10);
                     artistDisplay.innerText = artist;
                     albumDisplay.innerText = album;
 
@@ -283,6 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 onError: function () {
                     const title = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
                     statusLine.innerText = title;
+                    setTimeout(() => fitText(statusLine, 30), 10);
                     artistDisplay.innerText = "DS200 PLAYER";
                     albumDisplay.innerText = "NO METADATA";
 
