@@ -559,7 +559,7 @@ body {
     display: none;
     position: absolute;
     bottom: 110px;
-    right: 40px;
+    right: 70px;
     width: 220px;
     background: rgba(0, 0, 0, 0.9);
     border: 5px solid var(--mc-gold);
@@ -648,33 +648,62 @@ body {
 
 /* Conteneur spécifique pour la playlist */
 .playlist-container {
-    max-height: 70vh;
+    max-height: 480px;
     overflow-y: auto;
     background: #050505;
     border: 5px solid var(--mc-gold);
-    border-radius: 15px;
-    padding: 20px;
+    border-radius: 12px;
+    padding: 0;
     text-align: left;
-    /* Aligne le contenu à gauche */
+}
+
+/* Popup playlist — ancré au-dessus du bouton INPUT */
+#playlist-modal {
+    display: none;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 10px;
+    width: 380px;
+    z-index: 3500;
+    filter: drop-shadow(0 -8px 30px rgba(0, 0, 0, 0.9));
+}
+
+#playlist-modal.open {
+    display: block;
+}
+
+/* Header avec titre et bouton fermer */
+.playlist-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px 10px 18px;
+    border-bottom: 1px solid var(--mc-gold);
 }
 
 /* Bouton fermer de la playlist */
 .close-playlist {
-    float: right;
     cursor: pointer;
     color: var(--mc-green);
-    font-size: 30px;
-    line-height: 20px;
+    font-size: 24px;
+    line-height: 1;
+    opacity: 0.8;
+    transition: opacity 0.15s;
+}
+
+.close-playlist:hover {
+    opacity: 1;
 }
 
 /* Titre de la playlist */
 .playlist-title {
     color: var(--mc-green);
     font-family: 'Roboto', sans-serif;
-    border-bottom: 1px solid var(--mc-green);
-    padding-bottom: 10px;
-    margin-top: 0;
-    letter-spacing: 2px;
+    margin: 0;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
 }
 
 /* Liste des morceaux */
@@ -684,18 +713,26 @@ body {
     margin: 0;
     color: var(--mc-blue);
     font-family: 'Roboto', sans-serif;
+    max-height: 420px;
+    overflow-y: auto;
 }
 
 /* Style optionnel pour les éléments de la liste (li) */
 #playlist-items li {
-    padding: 10px;
+    padding: 10px 18px;
     border-bottom: 1px solid #1a1a1a;
     cursor: pointer;
     transition: background 0.2s;
+    font-size: 12px;
+    letter-spacing: 1px;
 }
 
 #playlist-items li:hover {
     background: rgba(51, 204, 255, 0.1);
+}
+
+#playlist-items li.active-track {
+    color: var(--mc-green);
 }
 
 /* --- DRAG & DROP OVERLAY --- */

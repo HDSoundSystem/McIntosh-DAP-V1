@@ -421,30 +421,59 @@ document.addEventListener('DOMContentLoaded', () => {
     trackNumberDisplay.style.cursor = "pointer";
     trackNumberDisplay.addEventListener('click', () => {
         if (playlist.length === 0) return;
+
+        // Toggle le popup
+        const isOpen = playlistModal.classList.contains('open');
+        if (isOpen) {
+            playlistModal.classList.remove('open');
+            return;
+        }
+
+        // Reconstruire la liste
         playlistItems.innerHTML = "";
         playlist.forEach((file, index) => {
             const li = document.createElement('li');
-            li.style.padding = "10px";
+            li.style.padding = "10px 18px";
             li.style.borderBottom = "1px solid #111";
             li.style.cursor = "pointer";
+            li.style.color = "#33ccff";
+            li.style.fontSize = "12px";
+            li.style.letterSpacing = "1px";
+
             if (index === currentIndex) {
-                li.style.color = "#33ccff";
+                li.classList.add('active-track');
                 li.innerHTML = `▶ ${index + 1}. ${file.name.toUpperCase()}`;
             } else {
-                li.style.color = "#33ccff";
                 li.innerText = `${index + 1}. ${file.name.toUpperCase()}`;
             }
-            li.onclick = () => {
+
+            li.addEventListener('click', (e) => {
+                e.stopPropagation();
                 currentIndex = index;
                 loadTrack(currentIndex);
-                playlistModal.style.display = "none";
-            };
+                // Mettre à jour le titre actif sans fermer
+                playlistItems.querySelectorAll('li').forEach((el, i) => {
+                    el.classList.remove('active-track');
+                    el.style.color = "#33ccff";
+                    if (i === currentIndex) {
+                        el.classList.add('active-track');
+                        el.innerHTML = `▶ ${i + 1}. ${playlist[i].name.toUpperCase()}`;
+                    } else {
+                        el.innerText = `${i + 1}. ${playlist[i].name.toUpperCase()}`;
+                    }
+                });
+            });
+
             playlistItems.appendChild(li);
         });
-        playlistModal.style.display = "block";
+
+        playlistModal.classList.add('open');
     });
 
-    if (closePlaylist) closePlaylist.onclick = () => playlistModal.style.display = "none";
+    if (closePlaylist) closePlaylist.onclick = (e) => {
+        e.stopPropagation();
+        playlistModal.classList.remove('open');
+    };
 
     nextBtn.addEventListener('mousedown', () => {
         const timer = setTimeout(() => startSeeking('forward'), 500);
@@ -520,7 +549,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (closeModal) closeModal.onclick = () => modal.style.display = "none";
     window.onclick = (event) => {
         if (event.target == modal) modal.style.display = "none";
-        if (event.target == playlistModal) playlistModal.style.display = "none";
         if (event.target == optionsPopup) optionsPopup.style.display = "none";
     };
 

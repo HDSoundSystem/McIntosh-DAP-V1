@@ -35,13 +35,24 @@
                 </header>
 
                 <div class="main-controls">
-                    <div class="knob-container">
+                    <div class="knob-container" style="position: relative;">
                         <span class="label">INPUT</span>
                         <div class="knob-outer">
                             <div class="knob" id="input-knob"></div>
                         </div>
                         <span class="sub-label"><span
                                 class="gold-text">PUSH</span></span>
+
+                        <!-- PLAYLIST POPUP — ancré au-dessus du bouton INPUT -->
+                        <div id="playlist-modal">
+                            <div class="playlist-container">
+                                <div class="playlist-header">
+                                    <h3 class="playlist-title">PLAYLIST</h3>
+                                    <span class="close-playlist">&times;</span>
+                                </div>
+                                <ul id="playlist-items"></ul>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="vfd-display">
@@ -237,15 +248,6 @@
                 <div id="modal-track-info"></div>
             </div>
         </div>
-        <div id="playlist-modal" class="modal">
-            <div class="modal-content playlist-container">
-                <span class="close-playlist">&times;</span>
-                <h3 class="playlist-title">PLAYLIST</h3>
-                <ul id="playlist-items">
-                </ul>
-            </div>
-        </div>
-
         <div id="drop-overlay" class="drop-overlay">
             <div class="drop-overlay-box">
                 <span class="drop-overlay-icon"><i class="fa-solid fa-music"></i></span>
