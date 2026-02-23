@@ -1,4 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- ELECTRON IPC (commandes multimédia Windows) ---
+    const ipcRenderer = (() => {
+        try {
+            const { ipcRenderer } = require('electron');
+            return ipcRenderer;
+        } catch (e) {
+            return null; // contexte navigateur, pas Electron
+        }
+    })();
+
+    const sendThumbbar = (isPlaying) => {
+        if (ipcRenderer) ipcRenderer.send('update-thumbar', isPlaying);
+    };
     // --- SÉLECTEURS ---
     const audio = document.getElementById('main-audio');
     const fileLoader = document.getElementById('file-loader');
@@ -163,22 +176,87 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- MEDIA SESSION (CHROME/EDGE CONTROLS) ---
     const updateMediaSession = (title, artist, album, cover) => {
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: title,
-                artist: artist,
-                album: album,
-                artwork: cover ? [{ src: cover, sizes: '512x512', type: 'image/png' }] : []
-            });
+        if (!('mediaSession' in navigator)) return;
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: title,
+            artist: artist,
+            album: album,
+            artwork: cover ? [{ src: cover, sizes: '512x512', type: 'image/png' }] : []
+        });
+    };
 
-            navigator.mediaSession.setActionHandler('play', () => playPauseBtn.click());
-            navigator.mediaSession.setActionHandler('pause', () => playPauseBtn.click());
-            navigator.mediaSession.setActionHandler('previoustrack', () => prevBtn.click());
-            navigator.mediaSession.setActionHandler('nexttrack', () => nextBtn.click());
-            navigator.mediaSession.setActionHandler('seekbackward', () => { audio.currentTime = Math.max(0, audio.currentTime - 10); });
-            navigator.mediaSession.setActionHandler('seekforward', () => { audio.currentTime = Math.min(audio.duration, audio.currentTime + 10); });
+    const updatePositionState = () => {
+        if (!('mediaSession' in navigator)) return;
+        if (!isNaN(audio.duration) && audio.duration > 0) {
+            try {
+                navigator.mediaSession.setPositionState({
+                    duration: audio.duration,
+                    playbackRate: audio.playbackRate,
+                    position: audio.currentTime
+                });
+            } catch (e) {}
         }
     };
+
+    // Enregistrement des handlers une seule fois au démarrage
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.setActionHandler('play', () => {
+            if (!audio.src) return;
+            initVisualizer();
+            audio.play();
+            playPauseBtn.classList.add('active');
+            statusIcon.innerHTML = '<i class="fa-solid fa-play"></i>';
+            navigator.mediaSession.playbackState = 'playing';
+        });
+
+        navigator.mediaSession.setActionHandler('pause', () => {
+            audio.pause();
+            playPauseBtn.classList.remove('active');
+            statusIcon.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            navigator.mediaSession.playbackState = 'paused';
+        });
+
+        navigator.mediaSession.setActionHandler('stop', () => {
+            audio.pause();
+            audio.currentTime = 0;
+            playPauseBtn.classList.remove('active');
+            statusIcon.innerHTML = '<i class="fa-solid fa-stop"></i>';
+            navigator.mediaSession.playbackState = 'none';
+        });
+
+        navigator.mediaSession.setActionHandler('previoustrack', () => {
+            if (playlist.length === 0) return;
+            currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+            loadTrack(currentIndex);
+        });
+
+        navigator.mediaSession.setActionHandler('nexttrack', () => {
+            if (playlist.length === 0) return;
+            currentIndex = getNextIndex();
+            loadTrack(currentIndex);
+        });
+
+        navigator.mediaSession.setActionHandler('seekbackward', (details) => {
+            const step = details.seekOffset || 10;
+            audio.currentTime = Math.max(0, audio.currentTime - step);
+            updatePositionState();
+        });
+
+        navigator.mediaSession.setActionHandler('seekforward', (details) => {
+            const step = details.seekOffset || 10;
+            audio.currentTime = Math.min(audio.duration, audio.currentTime + step);
+            updatePositionState();
+        });
+
+        try {
+            navigator.mediaSession.setActionHandler('seekto', (details) => {
+                if (details.seekTime !== undefined) {
+                    audio.currentTime = details.seekTime;
+                    updatePositionState();
+                }
+            });
+        } catch (e) {}
+    }
 
     // --- FONCTION AFFICHAGE TONALITÉ SUR VFD ---
     const showToneOnVFD = (label, value) => {
@@ -352,7 +430,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    audio.addEventListener('play', () => {
+        if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+    });
+
+    audio.addEventListener('pause', () => {
+        if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+    });
+
     audio.addEventListener('timeupdate', () => {
+        updatePositionState();
         if (abPointA !== null && abPointB !== null) {
             if (audio.currentTime >= abPointB) {
                 audio.currentTime = abPointA;
@@ -630,10 +717,14 @@ document.addEventListener('DOMContentLoaded', () => {
             audio.play();
             playPauseBtn.classList.add('active');
             statusIcon.innerHTML = '<i class="fa-solid fa-play"></i>';
+            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+            sendThumbbar(true);
         } else {
             audio.pause();
             playPauseBtn.classList.remove('active');
             statusIcon.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+            sendThumbbar(false);
         }
     });
 
@@ -644,6 +735,8 @@ document.addEventListener('DOMContentLoaded', () => {
         timeDisplay.innerText = isTimeRemaining ? "-00:00" : "00:00";
         playPauseBtn.classList.remove('active');
         statusIcon.innerHTML = '<i class="fa-solid fa-stop"></i>';
+        if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
+        sendThumbbar(false);
     });
 
     inputKnob.addEventListener('click', () => fileLoader.click());
@@ -714,4 +807,59 @@ document.addEventListener('DOMContentLoaded', () => {
         initVisualizer();
         audio.play().catch(err => console.log('Lecture auto bloquée:', err));
     });
+
+    // --- RÉCEPTION DES COMMANDES MULTIMÉDIA ELECTRON ---
+    if (ipcRenderer) {
+
+        // Touches multimédia clavier + boutons barre des tâches Windows
+        ipcRenderer.on('media-control', (event, action) => {
+            if (action === 'play-pause') {
+                if (!audio.src) return;
+                initVisualizer();
+                if (audio.paused) {
+                    audio.play();
+                    playPauseBtn.classList.add('active');
+                    statusIcon.innerHTML = '<i class="fa-solid fa-play"></i>';
+                    sendThumbbar(true);
+                } else {
+                    audio.pause();
+                    playPauseBtn.classList.remove('active');
+                    statusIcon.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                    sendThumbbar(false);
+                }
+            } else if (action === 'next') {
+                if (playlist.length === 0) return;
+                currentIndex = getNextIndex();
+                loadTrack(currentIndex);
+            } else if (action === 'prev') {
+                if (playlist.length === 0) return;
+                currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+                loadTrack(currentIndex);
+            }
+        });
+
+        // Ouverture de fichiers via "Ouvrir avec" ou glisser sur l'icône
+        ipcRenderer.on('open-files', (event, filePaths) => {
+            const ACCEPTED_EXT = /\.(mp3|flac|wav|mp4|m4a|aac|ogg)$/i;
+            const validPaths = filePaths.filter(p => ACCEPTED_EXT.test(p));
+            if (validPaths.length === 0) return;
+
+            // Convertir les chemins en objets File via fetch + Blob
+            Promise.all(validPaths.map(p =>
+                fetch(p.startsWith('file://') ? p : `file:///${p.replace(/\\/g, '/')}`)
+                    .then(r => r.blob())
+                    .then(blob => new File([blob], p.split(/[\\/]/).pop(), { type: blob.type }))
+            )).then(files => {
+                playlist = files;
+                currentIndex = 0;
+                loadTrack(currentIndex);
+                playPauseBtn.classList.add('active');
+                statusIcon.innerHTML = '<i class="fa-solid fa-play"></i>';
+                initVisualizer();
+                audio.play().catch(e => console.log('Lecture auto bloquée:', e));
+                sendThumbbar(true);
+            }).catch(err => console.error('Erreur chargement fichiers IPC:', err));
+        });
+    }
+
 });
