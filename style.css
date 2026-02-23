@@ -7,7 +7,7 @@
     --mc-red: #ff0000;
     --vfd-background: #020502;
     --vfd-off: #000;
-    --backgound-color: #3a3a3a;
+    --backgound-color: #666666;
     --chassis-color: #000;
 
     /* === TRIM SETTINGS === */
@@ -35,7 +35,7 @@ body {
     border-top: 10px solid #1a1a1a;
     border-bottom: 10px solid #1a1a1a ;
     position: relative;
-    box-shadow: 0 50px 100px rgba(0, 0, 0, 0.9);
+    box-shadow: 0 50px 100px rgba(148, 148, 148, 0.9);
     overflow: visible;
 }
 
