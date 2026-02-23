@@ -466,7 +466,8 @@ body {
     color: var(--mc-gold);
     text-transform: uppercase;
     font-weight: normal;
-    font-size: small;
+    font-size: 12px;
+    letter-spacing: 0.5px;
 }
 
 #file-format {
@@ -577,7 +578,9 @@ body {
 .gold-text {
     color: var(--mc-gold);
     text-transform: uppercase;
-    font-weight: normal;
+    font-weight: bold;
+    font-size: 12px;
+    letter-spacing: 0.5px;
 }
 
 #input-knob {
