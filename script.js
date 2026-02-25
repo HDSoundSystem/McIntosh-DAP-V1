@@ -107,16 +107,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- VARIABLES VOLUME (NOUVEAU) ---
     let volumeInterval;
 
-    // --- VISUALISEUR (VU-MÈTRE) ---
+    // --- VISUALISEUR STÉRÉO L/R ---
     const canvas = document.getElementById('vfd-visualizer');
     const ctx = canvas.getContext('2d');
-    let audioCtx, analyser, source, dataArray;
+    let audioCtx, analyserL, analyserR, source, dataArrayL, dataArrayR;
 
     function initVisualizer() {
         if (audioCtx) return;
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioCtx.createAnalyser();
-        source = audioCtx.createMediaElementSource(audio);
 
         // --- CONFIGURATION FILTRES TONALITÉ ---
         bassFilter = audioCtx.createBiquadFilter();
@@ -129,17 +127,34 @@ document.addEventListener('DOMContentLoaded', () => {
         trebleFilter.frequency.value = 3000;
         trebleFilter.gain.value = trebleLevel;
 
-        // Chaînage : Source -> Basses -> Aigus -> Analyseur -> Destination
+        // Splitter stéréo
+        const splitter = audioCtx.createChannelSplitter(2);
+        const merger   = audioCtx.createChannelMerger(2);
+
+        analyserL = audioCtx.createAnalyser();
+        analyserR = audioCtx.createAnalyser();
+        analyserL.fftSize = 64;
+        analyserR.fftSize = 64;
+
+        source = audioCtx.createMediaElementSource(audio);
+
+        // Chaîne : Source → Bass → Treble → Splitter → AnalyserL/R → Merger → Destination
         source.connect(bassFilter);
         bassFilter.connect(trebleFilter);
-        trebleFilter.connect(analyser);
-        analyser.connect(audioCtx.destination);
+        trebleFilter.connect(splitter);
 
-        analyser.fftSize = 64;
-        dataArray = new Uint8Array(analyser.frequencyBinCount);
+        splitter.connect(analyserL, 0);
+        splitter.connect(analyserR, 1);
+
+        splitter.connect(merger, 0, 0);
+        splitter.connect(merger, 1, 1);
+        merger.connect(audioCtx.destination);
+
+        dataArrayL = new Uint8Array(analyserL.frequencyBinCount);
+        dataArrayR = new Uint8Array(analyserR.frequencyBinCount);
 
         const dpr = window.devicePixelRatio || 1;
-        canvas.width = canvas.offsetWidth * dpr;
+        canvas.width  = canvas.offsetWidth  * dpr;
         canvas.height = canvas.offsetHeight * dpr;
         ctx.scale(dpr, dpr);
         draw();
@@ -147,32 +162,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function draw() {
         requestAnimationFrame(draw);
-        if (!analyser) return;
-        analyser.getByteFrequencyData(dataArray);
-        const logicalWidth = canvas.width / (window.devicePixelRatio || 1);
+        if (!analyserL || !analyserR) return;
+
+        analyserL.getByteFrequencyData(dataArrayL);
+        analyserR.getByteFrequencyData(dataArrayR);
+
+        const logicalWidth  = canvas.width  / (window.devicePixelRatio || 1);
         const logicalHeight = canvas.height / (window.devicePixelRatio || 1);
         ctx.clearRect(0, 0, logicalWidth, logicalHeight);
-        const barWidth = Math.floor((logicalWidth / dataArray.length) * 0.85);
-        const segmentHeight = 4;
-        const segmentGap = 1;
-        const totalSegments = Math.floor(logicalHeight / (segmentHeight + segmentGap));
-        let x = 0;
-        for (let i = 0; i < dataArray.length; i++) {
-            const intensity = dataArray[i] / 255;
-            const segmentsToFill = Math.floor(intensity * totalSegments);
-            for (let j = 0; j < segmentsToFill; j++) {
-                const y = Math.floor(logicalHeight - (j * (segmentHeight + segmentGap)));
-                let color = "#33ccff";
-                const percent = j / totalSegments;
-                if (percent > 0.75) color = "#ff0000";
-                else if (percent > 0.55) color = "#ffaa00";
-                ctx.fillStyle = color;
-                ctx.fillRect(Math.floor(x), y - segmentHeight, barWidth, segmentHeight);
-                ctx.fillStyle = "rgba(255,255,255,0.1)";
-                ctx.fillRect(Math.floor(x), y - segmentHeight, barWidth, 1);
+
+        const SEP        = 6;
+        const halfW      = (logicalWidth - SEP) / 2;
+        const numBars    = dataArrayL.length;
+        const barSlot    = halfW / numBars;
+        const barWidth   = Math.floor(barSlot * 0.82);
+        const segH       = 4;
+        const segGap     = 1;
+        const totalSegs  = Math.floor(logicalHeight / (segH + segGap));
+
+        const drawChannel = (dataArray, offsetX) => {
+            for (let i = 0; i < numBars; i++) {
+                const intensity    = dataArray[i] / 255;
+                const segsToFill   = Math.floor(intensity * totalSegs);
+                const x = Math.floor(offsetX + i * barSlot);
+                for (let j = 0; j < segsToFill; j++) {
+                    const y       = Math.floor(logicalHeight - j * (segH + segGap));
+                    const percent = j / totalSegs;
+                    let color     = "#33ccff";
+                    if (percent > 0.75)      color = "#ff0000";
+                    else if (percent > 0.55) color = "#ffaa00";
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x, y - segH, barWidth, segH);
+                    ctx.fillStyle = "rgba(255,255,255,0.08)";
+                    ctx.fillRect(x, y - segH, barWidth, 1);
+                }
             }
-            x += (logicalWidth / dataArray.length);
-        }
+        };
+
+        // Canal gauche
+        drawChannel(dataArrayL, 0);
+
+        // Séparateur central (espace vide)
+        // Canal droit
+        drawChannel(dataArrayR, halfW + SEP);
     }
 
     // --- MEDIA SESSION (CHROME/EDGE CONTROLS) ---

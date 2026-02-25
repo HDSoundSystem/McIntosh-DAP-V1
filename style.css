@@ -278,13 +278,25 @@ body {
 
 .freq-labels {
     display: flex;
-    justify-content: space-between;
+    align-items: center;
     margin-top: 4px;
     font-size: 9px;
     color: var(--mc-blue);
     font-family: Arial, sans-serif;
     opacity: 0.6;
-    padding: 0 5px;
+    gap: 0;
+}
+
+.freq-labels-side {
+    display: flex;
+    justify-content: space-between;
+    flex: 1;
+    padding: 0 2px;
+}
+
+.freq-labels-sep {
+    width: 6px;
+    flex-shrink: 0;
 }
 
 .knob-container {
