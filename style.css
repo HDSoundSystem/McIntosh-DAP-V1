@@ -855,6 +855,32 @@ body {
     opacity: 1;
 }
 
+/* Scrollbar personnalisée pour la playlist */
+#playlist-items::-webkit-scrollbar {
+    width: 12px;
+}
+
+#playlist-items::-webkit-scrollbar-track {
+    background: #000000;
+    border-radius: 6px;
+}
+
+#playlist-items::-webkit-scrollbar-thumb {
+    background: var(--mc-blue);
+    border-radius: 6px;
+    border: 2px solid #000000;
+}
+
+#playlist-items::-webkit-scrollbar-thumb:hover {
+    background: #4dd4ff;
+}
+
+/* Pour Firefox */
+#playlist-items {
+    scrollbar-width: thin;
+    scrollbar-color: var(--mc-blue) #000000;
+}
+
 /* --- DRAG & DROP OVERLAY --- */
 .drop-overlay {
     display: none;

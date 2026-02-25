@@ -133,8 +133,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         analyserL = audioCtx.createAnalyser();
         analyserR = audioCtx.createAnalyser();
-        analyserL.fftSize = 64;
-        analyserR.fftSize = 64;
+        analyserL.fftSize = 32;
+        analyserR.fftSize = 32;
 
         source = audioCtx.createMediaElementSource(audio);
 

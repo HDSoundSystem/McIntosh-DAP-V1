@@ -1,6 +1,6 @@
 {
   "name": "McIntosh-DAP-DS200",
-  "version": "1.0.0",
+  "version": "1.5.0",
   "description": "McIntosh-DS200-Digital-Audio-Player",
   "main": "main.js",
   "scripts": {

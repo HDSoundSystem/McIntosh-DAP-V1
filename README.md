@@ -2,6 +2,10 @@
 
 A premium web-based audio player inspired by the iconic **McIntosh DS200 Network Player**, faithfully recreating its vacuum fluorescent display, rotary controls, and high-end aesthetic using modern web technologies.
 
+![Status](https://img.shields.io/badge/status-active-success)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Version](https://img.shields.io/badge/version-1.5.0-blue)
+
 ![550108549-7bc36eb4-3abf-4167-862a-a5e87df7afc9](https://github.com/user-attachments/assets/357fae73-8242-4ad4-ab8f-7c5d6351a1a8)
 <img width="1838" height="711" alt="1" src="https://github.com/user-attachments/assets/27ace9a8-dd30-4552-b04d-054ed2e39457" />
 ---
