@@ -5,10 +5,10 @@
     --mc-dark: #1a1a1a;
     --mc-light: #c2c2c2;
     --mc-red: #ff0000;
-    --vfd-background: #020502;
-    --vfd-off: #000;
+    --vfd-background: #020202;
+    --vfd-off: #020202;
     --backgound-color: #666666;
-    --chassis-color: #000;
+    --chassis-color: #080808;
 
     /* === TRIM SETTINGS === */
     --trim-height: 670px;   /* hauteur totale des trims */
@@ -127,7 +127,9 @@ body {
     width: 800px;
     height: 300px;
     background: var(--vfd-background);
-    border: 3px solid #111;
+    border: 3px solid #111111;
+    box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+    border-radius: 2px;
     position: relative;
     display: flex;
     flex-direction: column;
