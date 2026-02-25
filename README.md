@@ -296,34 +296,4 @@ This project is released for educational and personal use. McIntosh is a registe
 
 ---
 
-## Changelog
-
-### v1.2
-- **Electron desktop app** — full native Windows support
-- **Multimedia keyboard shortcuts** — Play/Pause, Next, Previous keys handled via `globalShortcut` (work system-wide)
-- **Windows taskbar controls** — thumbnail toolbar with live ▶/⏸ icon update via IPC
-- **"Open With" integration** — associate audio files with the app; files passed at launch or from a second instance are routed to the running player
-- **Portable build** — single `.exe` output via `electron-builder`
-- **IPC bridge** — `main.js` ↔ `script.js` communication for all media controls and file loading
-
-### v1.1
-- Drag & Drop file loading with animated overlay
-- Dynamic title font scaling — no more truncation on long filenames
-- Volume knob initialized with correct physical rotation at startup (5%)
-- Side trims repositioned above chassis border with configurable CSS variables (`--trim-height`, `--trim-top`)
-- Refined button design — lacquered, beveled style with press animation
-
-### v1.0 — Initial Release
-- Full playback engine with playlist support
-- Real-time 8-band spectrum analyzer
-- VFD display simulation with authentic McIntosh aesthetics
-- Options popup (Shuffle, Repeat, A-B Loop, Bass, Treble, Reset)
-- Media Session API integration
-- Progressive Web App support
-- Hoverable volume and tone level overlays
-- Clickable time display (elapsed / remaining toggle)
-- Album art full-screen viewer
-
----
-
 *Experience premium audio — browser-native or desktop.*
