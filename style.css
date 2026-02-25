@@ -150,15 +150,10 @@ body {
     letter-spacing: -1px;
 }
 
-.vfd-display.power-off {
-    background: var(--vfd-off) !important;
-    border-color: #050505 !important;
-    box-shadow: none !important;
-}
-
-.vfd-display.power-off * {
-    opacity: 0 !important;
-    transition: opacity 0.2s ease;
+.vfd-display.dimmed {
+    opacity: 0.08;
+    filter: brightness(0.4) saturate(0.3);
+    transition: opacity 0.5s ease, filter 0.5s ease;
 }
 
 .track-counter, .time-counter, .volume-center {
@@ -572,6 +567,58 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 20px;
+}
+
+/* STANDBY CONFIRMATION POPUP */
+.standby-confirm-popup {
+    display: none;
+    position: absolute;
+    bottom: 110px;
+    right: 70px;
+    width: 220px;
+    background: rgba(0, 0, 0, 0.95);
+    border: 5px solid var(--mc-gold);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), inset 0 0 10px rgba(145, 38, 36, 0.15);
+    z-index: 3100;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.standby-confirm-popup.open {
+    display: flex;
+}
+
+.standby-confirm-title {
+    color: var(--mc-gold);
+    font-family: 'Roboto', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--mc-gold);
+    width: 100%;
+    text-align: center;
+    padding-bottom: 12px;
+}
+
+.standby-confirm-msg {
+    color: var(--mc-green);
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-align: center;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.standby-confirm-btns {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    width: 100%;
 }
 
 .options-row {

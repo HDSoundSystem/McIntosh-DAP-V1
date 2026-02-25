@@ -260,7 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- FONCTION AFFICHAGE TONALITÉ SUR VFD ---
     const showToneOnVFD = (label, value) => {
-        if (vfdDisplay.classList.contains('power-off')) return;
         const volContainer = document.querySelector('.volume-center');
         const volLabel = volContainer.querySelector('.vol-label');
         volLabel.innerText = label;
@@ -589,6 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (optionsBtn) {
         optionsBtn.addEventListener('click', (e) => {
             e.stopPropagation();
+            if (playlist.length === 0) return;
             const isVisible = optionsPopup.style.display === 'flex';
             optionsPopup.style.display = isVisible ? 'none' : 'flex';
         });
@@ -641,11 +641,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('click', () => {
         if (optionsPopup) optionsPopup.style.display = 'none';
+        if (standbyConfirm) standbyConfirm.classList.remove('open');
     });
     if (optionsPopup) optionsPopup.addEventListener('click', (e) => e.stopPropagation());
 
     const showVolumeOnVFD = () => {
-        if (vfdDisplay.classList.contains('power-off')) return;
         const volContainer = document.querySelector('.volume-center');
         const volLabel = volContainer.querySelector('.vol-label');
         const currentVol = Math.round(audio.volume * 100);
@@ -746,14 +746,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     displayBtn.addEventListener('click', () => {
-        vfdDisplay.classList.toggle('power-off');
+        vfdDisplay.classList.toggle('dimmed');
         if (displayLed) displayLed.classList.toggle('active');
     });
 
-    standbyBtn.addEventListener('click', () => {
+    const standbyConfirm = document.getElementById('standby-confirm');
+    const standbyYes = document.getElementById('standby-yes');
+    const standbyNo = document.getElementById('standby-no');
+
+    standbyBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Fermer le popup options si ouvert
+        if (optionsPopup) optionsPopup.style.display = 'none';
+        standbyConfirm.classList.toggle('open');
+    });
+
+    standbyYes.addEventListener('click', () => {
+        standbyConfirm.classList.remove('open');
         statusLine.innerText = "SHUTDOWN...";
         setTimeout(() => window.location.reload(), 500);
     });
+
+    standbyNo.addEventListener('click', (e) => {
+        e.stopPropagation();
+        standbyConfirm.classList.remove('open');
+    });
+
+    if (standbyConfirm) standbyConfirm.addEventListener('click', (e) => e.stopPropagation());
 
     audio.volume = 0.05;
     const knobOuter = volumeKnob.parentElement;
